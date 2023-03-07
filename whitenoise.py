@@ -16,7 +16,7 @@ from scipy import linalg
 # Set the range and step of x manually
 start = 0
 stop = 6
-step = .3
+step = .2
 
 mean = 0
 std = .5
@@ -40,25 +40,29 @@ def estimateCurve():
 
 
     # Logging for shape
-    print(matrix)
-    print("Number of rows", len(matrix))
-    print("Number of columns", len(matrix[0]))
-    print("y smooth twice dimension:", len(y_smooth2[0:num_samples-1]))
-    print("Length of x:", len(x))
+    # print(matrix)
+    # print("Number of rows", len(matrix))
+    # print("Number of columns", len(matrix[0]))
+    # print("y smooth twice dimension:", len(y_smooth2[0:num_samples-1]))
+    # print("Length of x:", len(x))
 
     c = np.linalg.solve(matrix, y_smooth2[0:num_samples-1])
 
     # Print the function with constants
-    print(str(c[0]) + " + " + str(c[1]) + " * sin(x)" + str(c[2]) + " * cos(x)" + str(c[3]) + " * sin(2x)" + str(c[4]) + " * cos(2x)" + str(c[5]) + " * sin(3x)" + str(c[6]) + " * cos(3x)")
-    
-    est_y = []
-    for i in range(num_samples):
-        est_y.append(c[0] + c[1]*np.sin(x[i]) + c[2]*np.cos(x[i]) + c[3]*np.sin(2*x[i]) + c[4]*np.cos(2*x[i]) + c[5]*np.sin(3*x[i]) + c[6]*np.cos(3*x[i]))
+    strings = ["sin", "cos"]
+    equation = [str(c[0]), "+"]
+    for i in range(1, num_samples-1):
+        equation.append(str(c[i]))
+        equation.append(strings[i%2])
+        equation.append(str((i+1)//2))
+        equation.append("x + ")
+    equation.pop()
+    print("".join(equation))    
 
-    # est_y = c * row
-    print("est y:", est_y)
-    # -2 is for cutting off function
-    return est_y[0:len(x)-2]
+    a = np.array(matrix)
+    est_y = a.dot(c)
+   
+    return est_y[:len(x)-1]
 
 
 # def estimateCurve():
@@ -85,5 +89,5 @@ plt.plot(x, y, label = "original")
 plt.plot(x, y_smooth, label="y_smoothed_once")
 plt.plot(x, y_smooth2, linewidth=3, label="y_smoothed_twice")
 plt.legend()
-plt.plot(x[0:len(x)-2], estimateCurve(), label="estimated function")
+plt.plot(x[:len(x)-1], estimateCurve(), label="estimated function")
 plt.show()
